@@ -1,0 +1,8 @@
+name = "wordle"
+version = "0.1.0"
+
+[dependencies]
+gleam_stdlib = "~> 0.19"
+
+[dev-dependencies]
+gleeunit = "~> 0.6"
