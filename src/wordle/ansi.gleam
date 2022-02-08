@@ -1,20 +1,25 @@
 import gleam/string
 import gleam/int
+import gleam/list
 
-const green_seq = 32
+pub const bold = 1
 
-const yellow_seq = 33
+pub const black = 30
 
-const bg_seq = 10
+pub const green = 32
 
-pub fn green_bg(s) {
-  color(green_seq + bg_seq)(s)
-}
+pub const green_bg = 42
 
-pub fn yellow_bg(s) {
-  color(yellow_seq + bg_seq)(s)
-}
+pub const yellow = 33
 
-fn color(color_seq: Int) -> fn(String) -> String {
-  fn(s) { string.concat(["\e[1;", int.to_string(color_seq), "m", s, "\e[0m"]) }
+pub const yellow_bg = 43
+
+const bg = 10
+
+pub fn seq(codes: List(Int)) -> fn(String) -> String {
+  let start_sequence =
+    codes
+    |> list.map(int.to_string)
+    |> string.join(";")
+  fn(s) { string.concat(["\e[", start_sequence, "m", s, "\e[0m"]) }
 }

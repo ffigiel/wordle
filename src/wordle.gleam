@@ -4,6 +4,7 @@ import gleam/string
 import gleam/int
 import gleam/list
 import gleam/set
+import gleam/function
 import wordle/ansi
 
 pub fn main() {
@@ -58,9 +59,9 @@ fn show_guess(guess: Guess, solution: Guess) {
   |> list.map(fn(t) {
     let #(match, letter) = t
     let color_fn = case match {
-      ExactMatch -> ansi.green_bg
-      LooseMatch -> ansi.yellow_bg
-      NoMatch -> fn(s) { s }
+      ExactMatch -> ansi.seq([ansi.bold, ansi.black, ansi.green_bg])
+      LooseMatch -> ansi.seq([ansi.bold, ansi.black, ansi.yellow_bg])
+      NoMatch -> ansi.seq([ansi.bold])
     }
     color_fn(letter)
   })
