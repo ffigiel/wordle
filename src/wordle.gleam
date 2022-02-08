@@ -12,9 +12,13 @@ pub fn main() {
 fn play(game: Game) -> Game {
   let guess = prompt_guess()
   let new_game = Game(..game, guesses: [guess, ..game.guesses])
-  case list.length(new_game.guesses) {
-    5 -> game_over(new_game)
-    _ -> play(new_game)
+  case guess == game.solution {
+    True -> game_solved(new_game)
+    False ->
+      case list.length(new_game.guesses) {
+        5 -> game_over(new_game)
+        _ -> play(new_game)
+      }
   }
 }
 
@@ -46,7 +50,13 @@ fn prompt_guess() -> Guess {
   }
 }
 
+fn game_solved(game: Game) -> Game {
+  io.println("game_solved")
+  todo
+}
+
 fn game_over(game: Game) -> Game {
+  io.println("game_over")
   todo
 }
 
