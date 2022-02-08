@@ -9,6 +9,7 @@ import wordle/ansi
 
 pub fn main() {
   let game = Game(solution: Guess("GLEAM"), guesses: [])
+  io.println("Enter a 5-letter word")
   play(game)
 }
 
@@ -27,7 +28,6 @@ fn play(game: Game) {
 }
 
 fn prompt_guess() -> Guess {
-  io.println("Enter a 5-letter word")
   case erlang.get_line("> ") {
     Ok(word) -> {
       let word = string.trim(word)
@@ -61,9 +61,9 @@ fn show_guess(guess: Guess, solution: Guess) {
     let color_fn = case match {
       ExactMatch -> ansi.seq([ansi.bold, ansi.black, ansi.green_bg])
       LooseMatch -> ansi.seq([ansi.bold, ansi.black, ansi.yellow_bg])
-      NoMatch -> ansi.seq([ansi.bold])
+      NoMatch -> ansi.seq([ansi.gray])
     }
-    color_fn(letter)
+    color_fn(string.concat([" ", letter, " "]))
   })
   |> string.concat
   |> io.println

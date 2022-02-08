@@ -10,11 +10,11 @@ pub const green = 32
 
 pub const green_bg = 42
 
+pub const gray = 90
+
 pub const yellow = 33
 
 pub const yellow_bg = 43
-
-const bg = 10
 
 pub fn seq(codes: List(Int)) -> fn(String) -> String {
   let start_sequence =
