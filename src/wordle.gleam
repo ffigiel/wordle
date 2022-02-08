@@ -3,6 +3,8 @@ import gleam/erlang
 import gleam/string
 import gleam/int
 import gleam/list
+import gleam/set
+import wordle/ansi
 
 pub fn main() {
   let game = Game(solution: Guess("GLEAM"), guesses: [])
@@ -11,6 +13,7 @@ pub fn main() {
 
 fn play(game: Game) -> Game {
   let guess = prompt_guess()
+  show_guess(guess, game.solution)
   let new_game = Game(..game, guesses: [guess, ..game.guesses])
   case guess == game.solution {
     True -> game_solved(new_game)
@@ -48,6 +51,45 @@ fn prompt_guess() -> Guess {
       prompt_guess()
     }
   }
+}
+
+fn show_guess(guess: Guess, solution: Guess) {
+  match_guess(guess, solution)
+  |> list.map(fn(t) {
+    let #(match, letter) = t
+    let color_fn = case match {
+      ExactMatch -> ansi.green_bg
+      LooseMatch -> ansi.yellow_bg
+      NoMatch -> fn(s) { s }
+    }
+    color_fn(letter)
+  })
+  |> string.concat
+  |> io.println
+}
+
+fn match_guess(guess: Guess, solution: Guess) -> List(#(LetterMatch, String)) {
+  let solution_letters = string.to_graphemes(solution.word)
+  let solution_letters_set = set.from_list(solution_letters)
+  guess.word
+  |> string.to_graphemes()
+  |> list.index_map(fn(i, letter) {
+    let match = case list.at(solution_letters, i) == Ok(letter) {
+      True -> ExactMatch
+      False ->
+        case set.contains(solution_letters_set, letter) {
+          True -> LooseMatch
+          False -> NoMatch
+        }
+    }
+    #(match, letter)
+  })
+}
+
+type LetterMatch {
+  ExactMatch
+  LooseMatch
+  NoMatch
 }
 
 fn game_solved(game: Game) -> Game {
