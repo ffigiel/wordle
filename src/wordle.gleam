@@ -75,6 +75,8 @@ fn show_guess(guess: Word, solution: Word) {
 }
 
 fn match_guess(guess: Word, solution: Word) -> List(#(LetterMatch, String)) {
+  // TODO: count matched letters, so that match_guess(EEEEE, APPLE) returns only one match
+  // currently it returns 4 LooseMatches and 1 ExactMatch
   let solution_letters = string.to_graphemes(solution.word)
   let solution_letters_set = set.from_list(solution_letters)
   guess.word
