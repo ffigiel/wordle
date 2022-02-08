@@ -66,7 +66,7 @@ fn show_guess(guess: Word, solution: Word) {
     let color_fn = case match {
       ExactMatch -> ansi.seq([ansi.bold, ansi.black, ansi.green_bg])
       LooseMatch -> ansi.seq([ansi.bold, ansi.black, ansi.yellow_bg])
-      NoMatch -> ansi.seq([ansi.gray])
+      NoMatch -> ansi.seq([ansi.bold, ansi.gray])
     }
     color_fn(string.concat([" ", letter, " "]))
   })
