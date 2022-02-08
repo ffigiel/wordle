@@ -12,15 +12,15 @@ pub fn main() {
   play(game)
 }
 
-fn play(game: Game) -> Game {
+fn play(game: Game) {
   let guess = prompt_guess()
   show_guess(guess, game.solution)
   let new_game = Game(..game, guesses: [guess, ..game.guesses])
   case guess == game.solution {
-    True -> game_solved(new_game)
+    True -> game_solved()
     False ->
       case list.length(new_game.guesses) {
-        5 -> game_over(new_game)
+        5 -> game_over(new_game.solution)
         _ -> play(new_game)
       }
   }
@@ -93,14 +93,13 @@ type LetterMatch {
   NoMatch
 }
 
-fn game_solved(game: Game) -> Game {
-  io.println("game_solved")
-  todo
+fn game_solved() {
+  io.println("Congratulations!")
 }
 
-fn game_over(game: Game) -> Game {
-  io.println("game_over")
-  todo
+fn game_over(solution: Guess) {
+  io.println("Game over!")
+  io.println(string.concat(["The correct answer was ", solution.word]))
 }
 
 pub type Game {
