@@ -8,9 +8,14 @@ import gleam/function
 import wordle/ansi
 
 pub fn main() {
-  let game = Game(solution: Guess("GLEAM"), guesses: [])
+  let solution = choose_solution()
+  let game = Game(solution: solution, guesses: [])
   io.println("Enter a 5-letter word")
   play(game)
+}
+
+fn choose_solution() -> Word {
+  Word("GLEAM")
 }
 
 fn play(game: Game) {
@@ -27,15 +32,15 @@ fn play(game: Game) {
   }
 }
 
-fn prompt_guess() -> Guess {
+fn prompt_guess() -> Word {
   case erlang.get_line("> ") {
-    Ok(word) -> {
-      let word = string.trim(word)
-      case string.length(word) {
+    Ok(input) -> {
+      let input = string.trim(input)
+      case string.length(input) {
         5 ->
-          word
+          input
           |> string.uppercase
-          |> Guess
+          |> Word
         0 -> prompt_guess()
         n -> {
           io.println(string.concat([
@@ -54,7 +59,7 @@ fn prompt_guess() -> Guess {
   }
 }
 
-fn show_guess(guess: Guess, solution: Guess) {
+fn show_guess(guess: Word, solution: Word) {
   match_guess(guess, solution)
   |> list.map(fn(t) {
     let #(match, letter) = t
@@ -69,7 +74,7 @@ fn show_guess(guess: Guess, solution: Guess) {
   |> io.println
 }
 
-fn match_guess(guess: Guess, solution: Guess) -> List(#(LetterMatch, String)) {
+fn match_guess(guess: Word, solution: Word) -> List(#(LetterMatch, String)) {
   let solution_letters = string.to_graphemes(solution.word)
   let solution_letters_set = set.from_list(solution_letters)
   guess.word
@@ -97,15 +102,15 @@ fn game_solved() {
   io.println("Congratulations!")
 }
 
-fn game_over(solution: Guess) {
+fn game_over(solution: Word) {
   io.println("Game over!")
   io.println(string.concat(["The correct answer was ", solution.word]))
 }
 
 pub type Game {
-  Game(solution: Guess, guesses: List(Guess))
+  Game(solution: Word, guesses: List(Word))
 }
 
-pub type Guess {
-  Guess(word: String)
+pub type Word {
+  Word(word: String)
 }
