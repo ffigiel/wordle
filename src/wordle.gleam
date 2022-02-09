@@ -8,6 +8,7 @@ import gleam/function
 import gleam/result
 import wordle/ansi
 import wordle/word
+import wordle/match
 
 pub fn main() {
   let solution = choose_solution()
@@ -64,49 +65,18 @@ fn prompt_guess() -> word.Word {
 }
 
 fn show_guess(guess: word.Word, solution: word.Word) {
-  match_guess(guess, solution)
+  match.guess(guess, solution)
   |> list.map(fn(t) {
     let #(match, letter) = t
     let color_fn = case match {
-      ExactMatch -> ansi.seq([ansi.bold, ansi.black, ansi.green_bg])
-      LooseMatch -> ansi.seq([ansi.bold, ansi.black, ansi.yellow_bg])
-      NoMatch -> ansi.seq([ansi.bold, ansi.gray])
+      match.Exact -> ansi.seq([ansi.bold, ansi.black, ansi.green_bg])
+      match.Weak -> ansi.seq([ansi.bold, ansi.black, ansi.yellow_bg])
+      match.None -> ansi.seq([ansi.bold, ansi.gray])
     }
     color_fn(string.concat([" ", letter, " "]))
   })
   |> string.concat
   |> io.println
-}
-
-fn match_guess(
-  guess: word.Word,
-  solution: word.Word,
-) -> List(#(LetterMatch, String)) {
-  // TODO: count matched letters, so that match_guess(EEEEE, APPLE) returns only one match
-  // currently it returns 4 LooseMatches and 1 ExactMatch
-  let solution_letters =
-    word.reveal(solution)
-    |> string.to_graphemes
-  let solution_letters_set = set.from_list(solution_letters)
-  word.reveal(guess)
-  |> string.to_graphemes()
-  |> list.index_map(fn(i, letter) {
-    let match = case list.at(solution_letters, i) == Ok(letter) {
-      True -> ExactMatch
-      False ->
-        case set.contains(solution_letters_set, letter) {
-          True -> LooseMatch
-          False -> NoMatch
-        }
-    }
-    #(match, letter)
-  })
-}
-
-type LetterMatch {
-  ExactMatch
-  LooseMatch
-  NoMatch
 }
 
 fn game_solved() {
