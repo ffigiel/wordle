@@ -12,7 +12,7 @@ pub fn new(s: String) -> Result(Word, NewWordError) {
   let s = string.trim(s)
   case string.length(s) {
     5 ->
-      string.uppercase(s)
+      string.lowercase(s)
       |> Word
       |> Ok
     _ -> Error(InvalidLengthError)

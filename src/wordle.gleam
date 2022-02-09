@@ -73,7 +73,7 @@ fn show_guess(guess: word.Word, solution: word.Word) {
       match.Weak -> ansi.seq([ansi.bold, ansi.black, ansi.yellow_bg])
       match.None -> ansi.seq([ansi.bold, ansi.gray])
     }
-    color_fn(string.concat([" ", letter, " "]))
+    color_fn(string.concat([" ", string.uppercase(letter), " "]))
   })
   |> string.concat
   |> io.println

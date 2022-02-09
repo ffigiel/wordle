@@ -11,13 +11,18 @@ pub fn new_test() {
   word.new("poncho")
   |> should.equal(Error(word.InvalidLengthError))
 
-  // uppercase
-  word.new("mango")
+  // simple case
+  word.new("plant")
   |> result.map(word.reveal)
-  |> should.equal(Ok("MANGO"))
+  |> should.equal(Ok("plant"))
+
+  // always lowercase
+  word.new("MANGO")
+  |> result.map(word.reveal)
+  |> should.equal(Ok("mango"))
 
   // trim spaces
   word.new(" drone\t\n")
   |> result.map(word.reveal)
-  |> should.equal(Ok("DRONE"))
+  |> should.equal(Ok("drone"))
 }
