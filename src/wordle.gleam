@@ -5,7 +5,9 @@ import gleam/int
 import gleam/list
 import gleam/set
 import gleam/function
+import gleam/result
 import wordle/ansi
+import wordle/word
 
 pub fn main() {
   let solution = choose_solution()
@@ -14,8 +16,9 @@ pub fn main() {
   play(game)
 }
 
-fn choose_solution() -> Word {
-  Word("GLEAM")
+fn choose_solution() -> word.Word {
+  assert Ok(w) = word.new("gleam")
+  w
 }
 
 fn play(game: Game) {
@@ -32,34 +35,36 @@ fn play(game: Game) {
   }
 }
 
-fn prompt_guess() -> Word {
-  case erlang.get_line("> ") {
-    Ok(input) -> {
-      let input = string.trim(input)
-      case string.length(input) {
-        5 ->
-          input
-          |> string.uppercase
-          |> Word
-        0 -> prompt_guess()
-        n -> {
-          io.println(string.concat([
-            "This word has ",
-            int.to_string(n),
-            " letters",
-          ]))
-          prompt_guess()
-        }
-      }
-    }
-    Error(err) -> {
+type PromptGuessError {
+  GetLineError(e: erlang.GetLineError)
+  NewWordError(e: word.NewWordError)
+}
+
+fn prompt_guess() -> word.Word {
+  let res =
+    fn() {
+      try input =
+        erlang.get_line("> ")
+        |> result.map_error(GetLineError)
+      try word =
+        word.new(input)
+        |> result.map_error(NewWordError)
+      Ok(word)
+    }()
+  case res {
+    Ok(w) -> w
+    Error(GetLineError(err)) -> {
       io.debug(err)
+      prompt_guess()
+    }
+    Error(NewWordError(word.InvalidLengthError)) -> {
+      io.println("The word needs to be five letters long.")
       prompt_guess()
     }
   }
 }
 
-fn show_guess(guess: Word, solution: Word) {
+fn show_guess(guess: word.Word, solution: word.Word) {
   match_guess(guess, solution)
   |> list.map(fn(t) {
     let #(match, letter) = t
@@ -74,12 +79,17 @@ fn show_guess(guess: Word, solution: Word) {
   |> io.println
 }
 
-fn match_guess(guess: Word, solution: Word) -> List(#(LetterMatch, String)) {
+fn match_guess(
+  guess: word.Word,
+  solution: word.Word,
+) -> List(#(LetterMatch, String)) {
   // TODO: count matched letters, so that match_guess(EEEEE, APPLE) returns only one match
   // currently it returns 4 LooseMatches and 1 ExactMatch
-  let solution_letters = string.to_graphemes(solution.word)
+  let solution_letters =
+    word.reveal(solution)
+    |> string.to_graphemes
   let solution_letters_set = set.from_list(solution_letters)
-  guess.word
+  word.reveal(guess)
   |> string.to_graphemes()
   |> list.index_map(fn(i, letter) {
     let match = case list.at(solution_letters, i) == Ok(letter) {
@@ -104,15 +114,11 @@ fn game_solved() {
   io.println("Congratulations!")
 }
 
-fn game_over(solution: Word) {
+fn game_over(solution: word.Word) {
   io.println("Game over!")
-  io.println(string.concat(["The correct answer was ", solution.word]))
+  io.println(string.concat(["The correct answer was ", word.reveal(solution)]))
 }
 
 pub type Game {
-  Game(solution: Word, guesses: List(Word))
-}
-
-pub type Word {
-  Word(word: String)
+  Game(solution: word.Word, guesses: List(word.Word))
 }
