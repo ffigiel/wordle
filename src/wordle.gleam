@@ -41,16 +41,15 @@ type PromptGuessError {
 }
 
 fn prompt_guess() -> word.Word {
-  let res =
-    fn() {
-      try input =
-        erlang.get_line("> ")
-        |> result.map_error(GetLineError)
-      try word =
-        word.new(input)
-        |> result.map_error(NewWordError)
-      Ok(word)
-    }()
+  let res = {
+    try input =
+      erlang.get_line("> ")
+      |> result.map_error(GetLineError)
+    try word =
+      word.new(input)
+      |> result.map_error(NewWordError)
+    Ok(word)
+  }
   case res {
     Ok(w) -> w
     Error(GetLineError(err)) -> {
