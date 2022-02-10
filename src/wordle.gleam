@@ -65,7 +65,11 @@ fn prompt_guess() -> word.Word {
 }
 
 fn show_guess(guess: word.Word, solution: word.Word) {
+  let letters =
+    word.reveal(guess)
+    |> string.to_graphemes
   match.guess(guess, solution)
+  |> list.zip(letters)
   |> list.map(fn(t) {
     let #(match, letter) = t
     let color_fn = case match {
